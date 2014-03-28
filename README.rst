@@ -36,6 +36,36 @@ on top.
 
 Omitting the search term just copies the stdin to stdout.
 
+Vim integration (ctrlp)
+-----------------------
+
+Unlike the original selecta, pyselecta works in MacVim, too.
+
+Add this to your ``vimrc``.
+
+::
+
+    let g:selecta_path = "pyselecta"
+
+    function! SelectaMatch(items, str, limit, mmode, ispath, crfile, regex)
+        let cachefile = ctrlp#utils#cachedir().'/selecta.cache'
+
+        if !( filereadable(cachefile) && a:items == readfile(cachefile) )
+            call writefile(a:items, cachefile)
+        endif
+
+        if !filereadable(cachefile)
+            return []
+        endif
+
+        let cmd = "cat ".cachefile." | ".g:selecta_path." ".a:str
+        return split(system(cmd), "\n")
+
+    endfunction
+
+    let g:ctrlp_match_func = {'match' : 'SelectaMatch' }
+
+
 License
 -------
 
