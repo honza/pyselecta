@@ -1,0 +1,106 @@
+#!/usr/bin/env python
+import sys
+
+
+def string_index(string, s, offset):
+    i = string.find(s, offset)
+
+    if i == -1:
+        return None
+
+    return i
+
+
+def find_end_of_match(string, chars, first_index):
+    last_index = first_index
+
+    for char in chars:
+        index = string_index(string, char, last_index + 1)
+
+        if not index:
+            return
+
+        last_index = index
+
+    return last_index
+
+
+def find_char_in_string(string, char):
+    index = 0
+    indexes = []
+
+    while index > -1:
+        index = string.find(char, index)
+        if index > -1:
+            indexes.append(index)
+            index += 1
+
+    return indexes
+
+
+def compute_match_length(string, chars):
+    first_char = chars[0]
+    rest = chars[1:]
+    first_indexes = find_char_in_string(string, first_char)
+    result = []
+
+    for first_index in first_indexes:
+        last_index = find_end_of_match(string, rest, first_index)
+        if last_index > -1:
+            result.append(last_index - first_index + 1)
+
+    if len(result) == 0:
+        return 0.0
+
+    return min(result)
+
+
+def score(choice, query):
+    if len(query) == 0:
+        return 1.0
+
+    if len(choice) == 0:
+        return 0.0
+
+    choice = choice.lower()
+    query = query.lower()
+
+    match_length = compute_match_length(choice, list(query))
+
+    if not match_length:
+        return 0.0
+
+    score = float(len(query)) / float(match_length)
+    return score / len(choice)
+
+
+def match(files, query):
+    scores = []
+
+    for choice in files:
+        scores.append((choice, score(choice, query),))
+
+    scores = filter(lambda x: x[1] > 0.0, scores)
+    scores.sort(key=lambda x: x[1])
+    scores.reverse()
+    return map(lambda x: x[0], scores)
+
+
+def main():
+    files = sys.stdin.read()
+
+    if len(sys.argv) == 1:
+        print files
+        return
+
+    files = files.splitlines()
+    query = sys.argv[1]
+
+    files = match(files, query)
+
+    for path in files:
+        print path
+
+
+if __name__ == '__main__':
+    main()
