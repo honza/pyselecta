@@ -114,7 +114,7 @@ func (a FscoreArr) Swap(i, j int) {
 }
 
 func (a FscoreArr) Less(i, j int) bool {
-	return a[i].score < a[j].score
+	return a[i].score > a[j].score
 }
 
 func Match(files []string, query string) []string {
@@ -124,7 +124,7 @@ func Match(files []string, query string) []string {
 		scores = append(scores, Fscore{Score(f, query), f})
 	}
 
-	sort.Sort(scores)
+	sort.Reverse(scores)
 
 	result := make([]string, 0)
 
